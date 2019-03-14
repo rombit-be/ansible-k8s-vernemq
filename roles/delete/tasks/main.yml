@@ -1,0 +1,23 @@
+---
+- name: Get grace period
+  command: "kubectl get po mongo-0 --template '{{ '{{' }}.spec.terminationGracePeriodSeconds{{ '}}' }}' --namespace={{ cluster_namespace }}"
+  register: grace_period
+
+- name: Destroy stateful set and pods
+  command: "kubectl delete statefulset,po -l app=mongo --namespace={{ cluster_namespace }}"
+
+- name: Wait for grace period
+  pause:
+    seconds: "{{ grace_period.stdout_lines.0 }}"
+
+- name: Destroy persistent volumes
+  command: "kubectl delete pvc -l app=mongo"
+
+- name: Destroy secrets
+  command: "kubectl delete secrets mongo-secrets --namespace={{ cluster_namespace }}"
+
+- name: Destroy service
+  command: "kubectl delete service {{ hostname }} --namespace={{ cluster_namespace }}"
+
+- name: Destroy storage class
+  command: "kubectl delete storageclass {{ storage_class }} --namespace={{ cluster_namespace }}"

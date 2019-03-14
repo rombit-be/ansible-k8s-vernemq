@@ -1,0 +1,6 @@
+---
+- name: Starting deploy
+  hosts: localhost
+  roles:
+  - { role: create, tags: ["vernemq"] }
+  - { role: dns, tags: ["dns"] }

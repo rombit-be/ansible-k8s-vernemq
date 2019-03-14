@@ -1,0 +1,11 @@
+cluster_context: non-existent-cluster
+cluster_namespace: default
+
+resources_cpu_requests: 100m
+resources_cpu_limits: 1000m
+resources_memory_requests: 1800Mi
+resources_memory_limits: 2500Mi
+
+replicas: 1
+max_surge: 1
+min_available: 1

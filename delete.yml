@@ -1,0 +1,5 @@
+---
+- name: Destroy deployment
+  hosts: localhost
+  roles:
+    - delete

@@ -9,3 +9,6 @@ resources_memory_limits: 2500Mi
 replicas: 1
 max_surge: 1
 min_available: 1
+
+aws_region: eu-west-1
+route53_zone: example.com 

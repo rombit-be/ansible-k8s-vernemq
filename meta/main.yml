@@ -1,0 +1,7 @@
+galaxy_info:
+  author: Jo Giraerts <devops@rombit.be>
+  description: Install VerneMQ on Kubernetes with AWS integration
+  company: https://rombit.be
+  min_ansible_version: 1.2
+  galaxy_tags: []
+dependencies: []

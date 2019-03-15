@@ -1,0 +1,18 @@
+---
+- name: Show usage
+  debug:
+    msg: "Use either '--tags create' or '--tags delete' to trigger a deploy or deletion"
+    
+- name: Deploy in namespace
+  import_tasks: 
+    - create.yml
+    - dns.yml
+  tags:
+    - create
+    - never
+
+- name: Delete from namespace
+  import_tasks: delete.yml
+  tags: 
+    - delete
+    - never

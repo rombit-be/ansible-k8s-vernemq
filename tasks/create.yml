@@ -1,4 +1,3 @@
----
 - name: Cleanup kubernetes folder
   file:
     state: absent
@@ -15,31 +14,31 @@
 
 - name: Make inner user
   shell: |
-      set timeout 300
-      spawn docker run --rm -v {{ ansible_env.PWD }}/kubernetes:/mnt -it erlio/docker-vernemq vmq-passwd /mnt/vmq.passwd inner
+    set timeout 300
+    spawn docker run --rm -v {{ ansible_env.PWD }}/kubernetes:/mnt -it erlio/docker-vernemq vmq-passwd /mnt/vmq.passwd inner
 
-      expect "Password: "
-      send "{{ inner_user_password }}\n"
+    expect "Password: "
+    send "{{ inner_user_password }}\n"
 
-      expect "Reenter password: "
-      send "{{ inner_user_password }}\n"
+    expect "Reenter password: "
+    send "{{ inner_user_password }}\n"
 
-      exit 0
+    exit 0
   args:
     executable: /usr/bin/expect
 
 - name: Make outer user
   shell: |
-      set timeout 300
-      spawn docker run --rm -v {{ ansible_env.PWD }}/kubernetes:/mnt -it erlio/docker-vernemq vmq-passwd /mnt/vmq.passwd outer
+    set timeout 300
+    spawn docker run --rm -v {{ ansible_env.PWD }}/kubernetes:/mnt -it erlio/docker-vernemq vmq-passwd /mnt/vmq.passwd outer
 
-      expect "Password: "
-      send "{{ outer_user_password }}\n"
+    expect "Password: "
+    send "{{ outer_user_password }}\n"
 
-      expect "Reenter password: "
-      send "{{ outer_user_password }}\n"
+    expect "Reenter password: "
+    send "{{ outer_user_password }}\n"
 
-      exit 0
+    exit 0
   args:
     executable: /usr/bin/expect
 
@@ -59,3 +58,4 @@
 
 - name: Deploy templates
   command: "kubectl apply -f kubernetes -n {{ cluster_namespace }}"
+  

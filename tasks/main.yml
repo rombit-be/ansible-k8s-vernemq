@@ -1,18 +1,11 @@
----
-- name: Show usage
-  debug:
-    msg: "Use either '--tags create' or '--tags delete' to trigger a deploy or deletion"
-    
 - name: Deploy in namespace
-  import_tasks: 
-    - create.yml
-    - dns.yml
-  tags:
-    - create
-    - never
+  include_tasks: create.yml
+  when: k8s_action == "create"
+
+- name: Configuring DNS
+  include_tasks: dns.yml
+  when: k8s_action == "create"
 
 - name: Delete from namespace
-  import_tasks: delete.yml
-  tags: 
-    - delete
-    - never
+  include_tasks: delete.yml
+  when: k8s_action == "delete"

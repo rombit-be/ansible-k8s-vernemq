@@ -1,15 +1,11 @@
 - name: Destroy stateful set and pods
   command: "kubectl delete statefulset,po -l app=vernemq --namespace={{ cluster_namespace }}"
 
-- name: Wait for grace period
-  pause:
-    seconds: "{{ grace_period.stdout_lines.0 }}"
-
 - name: Destroy secrets
   command: "kubectl delete secrets vernemq-passwd --namespace={{ cluster_namespace }}"
 
-- name: Destroy service
+- name: Destroy service vernemq
   command: "kubectl delete service vernemq --namespace={{ cluster_namespace }}"
 
-- name: Destroy service
+- name: Destroy service mqtts
   command: "kubectl delete service mqtts --namespace={{ cluster_namespace }}"

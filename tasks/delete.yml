@@ -4,11 +4,32 @@
 - name: Destroy secrets
   command: "kubectl delete secrets vernemq-passwd --namespace={{ cluster_namespace }}"
 
-- name: Destroy configmap
-  command: "kubectl delete configmap vernemq-config --namespace={{ cluster_namespace }}"
-
 - name: Destroy service vernemq
   command: "kubectl delete service vernemq --namespace={{ cluster_namespace }}"
 
 - name: Destroy service mqtts
   command: "kubectl delete service mqtts --namespace={{ cluster_namespace }}"
+
+- name: Delete DB user
+  when: use_postgresql_auth == true
+  delegate_to: "{{ kubernetes_bastion_host }}"
+  remote_user: "{{ kubernetes_bastion_user }}"
+  postgresql_user:
+    db: "{{ postgres_database }}"
+    name: "{{ postgres_user }}"
+    state: absent
+    login_host: "{{ postgres_host }}"
+    login_user: "{{ postgres_admin_user }}"
+    login_password: "{{ postgres_admin_password }}"
+    fail_on_user: no
+
+- name: Delete Postgres database
+  when: use_postgresql_auth == true
+  delegate_to: "{{ kubernetes_bastion_host }}"
+  remote_user: "{{ kubernetes_bastion_user }}"
+  postgresql_db:
+    name: "{{ postgres_database }}"
+    state: absent
+    login_host: "{{ postgres_host }}"
+    login_user: "{{ postgres_admin_user }}"
+    login_password: "{{ postgres_admin_password }}"

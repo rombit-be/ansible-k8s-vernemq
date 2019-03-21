@@ -1,0 +1,113 @@
+- name: Create db
+  delegate_to: "{{ kubernetes_bastion_host }}"
+  remote_user: "{{ kubernetes_bastion_user }}"
+  postgresql_db:
+    name: "{{ postgres_database }}"
+    state: present
+    login_host: "{{ postgres_host }}"
+    login_user: "{{ postgres_admin_user }}"
+    login_password: "{{ postgres_admin_password }}"
+
+- name: Create DB user
+  delegate_to: "{{ kubernetes_bastion_host }}"
+  remote_user: "{{ kubernetes_bastion_user }}"
+  postgresql_user:
+    db: "{{ postgres_database }}"
+    name: "{{ postgres_user }}"
+    password: "{{ postgres_password }}"
+    login_host: "{{ postgres_host }}"
+    login_user: "{{ postgres_admin_user }}"
+    login_password: "{{ postgres_admin_password }}"
+
+- name: Enable DB extensions
+  delegate_to: "{{ kubernetes_bastion_host }}"
+  remote_user: "{{ kubernetes_bastion_user }}"
+  postgresql_ext:
+    name: pgcrypto
+    db: "{{ postgres_database }}"
+    state: present
+    login_host: "{{ postgres_host }}"
+    login_user: "{{ postgres_admin_user }}"
+    login_password: "{{ postgres_admin_password }}"
+
+- name: Import schema
+  delegate_to: "{{ kubernetes_bastion_host }}"
+  remote_user: "{{ kubernetes_bastion_user }}"
+  postgresql_command:
+    command: >
+      CREATE TABLE IF NOT EXISTS vmq_auth_acl
+      (
+      mountpoint character varying(10) NOT NULL,
+      client_id character varying(128) NOT NULL,
+      username character varying(128) NOT NULL,
+      password character varying(128),
+      publish_acl json,
+      subscribe_acl json,
+      CONSTRAINT vmq_auth_acl_primary_key PRIMARY KEY (mountpoint, client_id, username)
+      )
+    database: "{{ postgres_database }}"
+    login_host: "{{ postgres_host }}"
+    login_user: "{{ postgres_user }}"
+    login_password: "{{ postgres_password }}"
+
+- name: Create inner user
+  delegate_to: "{{ kubernetes_bastion_host }}"
+  remote_user: "{{ kubernetes_bastion_user }}"
+  postgresql_command:
+    command: >
+      WITH x AS (
+      SELECT
+            ''::text AS mountpoint,
+            'inner-client'::text AS client_id,
+            'inner'::text AS username,
+            '{{ inner_user_password }}'::text AS password,
+            gen_salt('bf')::text AS salt,
+            '[{"pattern": "#"}]'::json AS publish_acl,
+            '[{"pattern": "#"}]'::json AS subscribe_acl
+      ) 
+      INSERT INTO vmq_auth_acl (mountpoint, client_id, username, password, publish_acl, subscribe_acl)
+      SELECT 
+          x.mountpoint,
+          x.client_id,
+          x.username,
+          crypt(x.password, x.salt),
+          x.publish_acl,
+          x.subscribe_acl
+      FROM x
+      ON CONFLICT (mountpoint, client_id, username)
+      DO UPDATE SET password=EXCLUDED.password, publish_acl=EXCLUDED.publish_acl, subscribe_acl=EXCLUDED.subscribe_acl
+    database: "{{ postgres_database }}"
+    login_host: "{{ postgres_host }}"
+    login_user: "{{ postgres_user }}"
+    login_password: "{{ postgres_password }}"
+
+- name: Create outer user
+  delegate_to: "{{ kubernetes_bastion_host }}"
+  remote_user: "{{ kubernetes_bastion_user }}"
+  postgresql_command:
+    command: >
+      WITH x AS (
+      SELECT
+            ''::text AS mountpoint,
+            'outer-client'::text AS client_id,
+            'outer'::text AS username,
+            '{{ outer_user_password }}'::text AS password,
+            gen_salt('bf')::text AS salt,
+            '[{"pattern": "#"}]'::json AS publish_acl,
+            '[{"pattern": "#"}]'::json AS subscribe_acl
+      ) 
+      INSERT INTO vmq_auth_acl (mountpoint, client_id, username, password, publish_acl, subscribe_acl)
+      SELECT 
+          x.mountpoint,
+          x.client_id,
+          x.username,
+          crypt(x.password, x.salt),
+          x.publish_acl,
+          x.subscribe_acl
+      FROM x
+      ON CONFLICT (mountpoint, client_id, username)
+      DO UPDATE SET password=EXCLUDED.password, publish_acl=EXCLUDED.publish_acl, subscribe_acl=EXCLUDED.subscribe_acl
+    database: "{{ postgres_database }}"
+    login_host: "{{ postgres_host }}"
+    login_user: "{{ postgres_user }}"
+    login_password: "{{ postgres_password }}"

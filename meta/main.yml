@@ -4,4 +4,5 @@ galaxy_info:
   company: https://rombit.be
   min_ansible_version: 1.2
   galaxy_tags: []
-dependencies: []
+dependencies: 
+  - rtshome.pgsql

@@ -2,6 +2,7 @@
   ec2_elb_facts:
     region: "{{ aws_region }}"
   register: elb_facts
+  
 - set_fact:
     elb_mqtt_dns_name: "{{ item.dns_name }}"
     elb_mqtt_hosted_zone: "{{ item.hosted_zone_id }}"

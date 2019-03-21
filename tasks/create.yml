@@ -7,48 +7,6 @@
 - name: Set the cluster to the specified one
   command: "kubectl config use-context {{ cluster_context }}"
 
-- name: Set up passwords for inner and outer user
-  file:
-    state: touch
-    path: "kubernetes/vmq.passwd"
-
-- name: Make inner user
-  shell: |
-    set timeout 300
-    spawn docker run --rm -v {{ ansible_env.PWD }}/kubernetes:/mnt -it erlio/docker-vernemq vmq-passwd /mnt/vmq.passwd inner
-
-    expect "Password: "
-    send "{{ inner_user_password }}\n"
-
-    expect "Reenter password: "
-    send "{{ inner_user_password }}\n"
-
-    exit 0
-  args:
-    executable: /usr/bin/expect
-
-- name: Make outer user
-  shell: |
-    set timeout 300
-    spawn docker run --rm -v {{ ansible_env.PWD }}/kubernetes:/mnt -it erlio/docker-vernemq vmq-passwd /mnt/vmq.passwd outer
-
-    expect "Password: "
-    send "{{ outer_user_password }}\n"
-
-    expect "Reenter password: "
-    send "{{ outer_user_password }}\n"
-
-    exit 0
-  args:
-    executable: /usr/bin/expect
-
-- name: Delete previous passwd secret on kubernetes
-  command: kubectl delete secret vernemq-passwd -n {{ cluster_namespace }}
-  ignore_errors: True
-
-- name: Register password file in our namespace
-  command: "kubectl create secret generic vernemq-passwd -n {{ cluster_namespace }} --from-file=./kubernetes/vmq.passwd"
-
 - name: prepare templates
   template:
     src: "{{ item }}"
@@ -56,6 +14,16 @@
   with_fileglob:
     - ../templates/*.j2
 
-- name: Deploy templates
-  command: "kubectl apply -f kubernetes -n {{ cluster_namespace }}"
-  
+- name: Configuring database authentication
+  include_tasks: postgres.yml
+  when: use_postgresql_auth == true
+
+- name: Configure file-based authentication
+  include_tasks: file_based_auth.yml
+  when: use_postgresql_auth == false
+
+- name: Deploy cluster
+  command: "kubectl apply -f kubernetes/vernemq-cluster.yaml -n {{ cluster_namespace }}"
+
+- name: Wait for a minute so the loadbalancer can be started
+  wait_for: timeout=60

@@ -69,6 +69,28 @@ spec:
 #}
         - name: DOCKER_VERNEMQ_VMQ_PASSWD__PASSWORD_FILE
           value: "/etc/vernemq-passwd/vmq.passwd"
+        - name: DOCKER_VERNEMQ_PLUGINS__VMQ_DIVERSITY
+          value: "{{ (use_postgresql_auth == true) | ternary('on', 'off') }}"
+        - name: DOCKER_VERNEMQ_PLUGINS__VMQ_PASSWD
+          value: "{{ (use_postgresql_auth == true) | ternary('off', 'on') }}"
+        - name: DOCKER_VERNEMQ_PLUGINS__VMQ_ACL
+          value: "{{ (use_postgresql_auth == true) | ternary('off', 'on') }}"
+        - name: DOCKER_VERNEMQ_VMQ_DIVERSITY__AUTH_POSTGRES__ENABLED
+          value: "{{ (use_postgresql_auth == true) | ternary('on', 'off') }}"
+
+{% if use_postgresql_auth == true %}     
+        - name: DOCKER_VERNEMQ_VMQ_DIVERSITY__POSTGRES__HOST
+          value: "{{ postgres_host }}"
+        - name: DOCKER_VERNEMQ_VMQ_DIVERSITY__POSTGRES__PORT
+          value: "{{ postgres_port }}"
+        - name: DOCKER_VERNEMQ_VMQ_DIVERSITY__POSTGRES__USER
+          value: "{{ postgres_user }}"
+        - name: DOCKER_VERNEMQ_VMQ_DIVERSITY__POSTGRES__PASSWORD
+          value: "{{ postgres_password }}"
+        - name: DOCKER_VERNEMQ_VMQ_DIVERSITY__POSTGRES__DATABASE
+          value: "{{ postgres_database }}"
+{% endif %}
+
         volumeMounts:
 {#        
         - mountPath: /etc/ssl

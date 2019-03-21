@@ -4,6 +4,9 @@
 - name: Destroy secrets
   command: "kubectl delete secrets vernemq-passwd --namespace={{ cluster_namespace }}"
 
+- name: Destroy configmap
+  command: "kubectl delete configmap vernemq-config --namespace={{ cluster_namespace }}"
+
 - name: Destroy service vernemq
   command: "kubectl delete service vernemq --namespace={{ cluster_namespace }}"
 

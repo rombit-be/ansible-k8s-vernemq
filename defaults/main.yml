@@ -12,3 +12,11 @@ min_available: 1
 
 aws_region: eu-west-1
 route53_zone: example.com 
+
+# Postgresql auth
+use_postgresql_auth: false
+postgres_host: localhost
+postgres_port: 5432
+postgres_user: vernemq
+postgres_password: "wqeirouty98dfghasdf8"
+postgres_database: vernemq

@@ -26,10 +26,6 @@ spec:
         ports:
         - containerPort: 1883
           name: mqtt
-{# 
-        - containerPort: 8883
-          name: mqtts 
-#}
         - containerPort: 4369
           name: epmd
         - containerPort: 44053
@@ -57,16 +53,6 @@ spec:
           value: "9109"
         - name: DOCKER_VERNEMQ_LISTENER__VMQ__CLUSTERING
           value: "0.0.0.0:44053"
-{# 
-        - name: DOCKER_VERNEMQ_LISTENER__SSL__DEFAULT
-          value: "0.0.0.0:8883"
-        - name: DOCKER_VERNEMQ_LISTENER__SSL__CAFILE
-          value: "/etc/ssl/ca.crt"
-        - name: DOCKER_VERNEMQ_LISTENER__SSL__CERTFILE
-          value: "/etc/ssl/server.crt"
-        - name: DOCKER_VERNEMQ_LISTENER__SSL__KEYFILE
-          value: "/etc/ssl/server.key" 
-#}
         - name: DOCKER_VERNEMQ_VMQ_PASSWD__PASSWORD_FILE
           value: "/etc/vernemq-passwd/vmq.passwd"
         - name: DOCKER_VERNEMQ_PLUGINS__VMQ_DIVERSITY
@@ -91,24 +77,16 @@ spec:
           value: "{{ postgres_database }}"
 {% endif %}
 
+{% if use_postgresql_auth == false %}
         volumeMounts:
-{#        
-        - mountPath: /etc/ssl
-          name: vernemq-certifications
-          readOnly: true 
-#}
         - mountPath: /etc/vernemq-passwd
           name: vernemq-passwd
           readOnly: true
       volumes:
-{# 
-      - name: vernemq-certifications
-        secret:
-          secretName: vernemq-certifications 
-#}
       - name: vernemq-passwd
         secret:
           secretName: vernemq-passwd
+{% endif %}          
 ---
 apiVersion: v1
 kind: Service

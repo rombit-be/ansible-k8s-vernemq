@@ -3,6 +3,7 @@
 
 - name: Destroy secrets
   command: "kubectl delete secrets vernemq-passwd --namespace={{ cluster_namespace }}"
+  when: use_postgresql_auth == false
 
 - name: Destroy service vernemq
   command: "kubectl delete service vernemq --namespace={{ cluster_namespace }}"

@@ -1,6 +1,4 @@
 - name: Create db
-  delegate_to: "{{ kubernetes_bastion_host }}"
-  remote_user: "{{ kubernetes_bastion_user }}"
   postgresql_db:
     name: "{{ postgres_database }}"
     state: present
@@ -9,8 +7,6 @@
     login_password: "{{ postgres_admin_password }}"
 
 - name: Create DB user
-  delegate_to: "{{ kubernetes_bastion_host }}"
-  remote_user: "{{ kubernetes_bastion_user }}"
   postgresql_user:
     db: "{{ postgres_database }}"
     name: "{{ postgres_user }}"
@@ -20,8 +16,6 @@
     login_password: "{{ postgres_admin_password }}"
 
 - name: Enable DB extensions
-  delegate_to: "{{ kubernetes_bastion_host }}"
-  remote_user: "{{ kubernetes_bastion_user }}"
   postgresql_ext:
     name: pgcrypto
     db: "{{ postgres_database }}"
@@ -31,8 +25,6 @@
     login_password: "{{ postgres_admin_password }}"
 
 - name: Import schema
-  delegate_to: "{{ kubernetes_bastion_host }}"
-  remote_user: "{{ kubernetes_bastion_user }}"
   postgresql_command:
     command: >
       CREATE TABLE IF NOT EXISTS vmq_auth_acl
@@ -51,8 +43,6 @@
     login_password: "{{ postgres_password }}"
 
 - name: Create inner user
-  delegate_to: "{{ kubernetes_bastion_host }}"
-  remote_user: "{{ kubernetes_bastion_user }}"
   postgresql_command:
     command: >
       WITH x AS (
@@ -82,8 +72,6 @@
     login_password: "{{ postgres_password }}"
 
 - name: Create outer user
-  delegate_to: "{{ kubernetes_bastion_host }}"
-  remote_user: "{{ kubernetes_bastion_user }}"
   postgresql_command:
     command: >
       WITH x AS (

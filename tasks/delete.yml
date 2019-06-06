@@ -13,8 +13,6 @@
 
 - name: Delete DB user
   when: use_postgresql_auth == true
-  delegate_to: "{{ kubernetes_bastion_host }}"
-  remote_user: "{{ kubernetes_bastion_user }}"
   postgresql_user:
     db: "{{ postgres_database }}"
     name: "{{ postgres_user }}"
@@ -26,8 +24,6 @@
 
 - name: Delete Postgres database
   when: use_postgresql_auth == true
-  delegate_to: "{{ kubernetes_bastion_host }}"
-  remote_user: "{{ kubernetes_bastion_user }}"
   postgresql_db:
     name: "{{ postgres_database }}"
     state: absent

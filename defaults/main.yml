@@ -5,6 +5,7 @@ resources_cpu_requests: 100m
 resources_cpu_limits: 1000m
 resources_memory_requests: 1800Mi
 resources_memory_limits: 2500Mi
+vernemq_version: 1.7.1-2-alpine
 
 replicas: 1
 max_surge: 1

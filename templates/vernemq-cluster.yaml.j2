@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: vernemq
-        image: erlio/docker-vernemq:1.7.1-1-alpine
+        image: erlio/docker-vernemq:{{ vernemq_version }}
         resources:
           limits:
             cpu: {{ resources_cpu_limits }}

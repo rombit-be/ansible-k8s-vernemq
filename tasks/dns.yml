@@ -2,12 +2,12 @@
   ec2_elb_facts:
     region: "{{ aws_region }}"
   register: elb_facts
-  
+
 - set_fact:
     elb_mqtt_dns_name: "{{ item.dns_name }}"
     elb_mqtt_hosted_zone: "{{ item.hosted_zone_id }}"
   with_items: "{{ elb_facts.elbs }}"
-  when: item.tags.KubernetesCluster == "{{ cluster_context }}" and item.tags['kubernetes.io/service-name'] is defined and item.tags['kubernetes.io/service-name'].find('{{ cluster_namespace }}/mqtts') != -1
+  when: item.tags.KubernetesCluster is defined and item.tags.KubernetesCluster == "{{ cluster_context }}" and item.tags['kubernetes.io/service-name'] is defined and item.tags['kubernetes.io/service-name'].find('{{ cluster_namespace }}/mqtts') != -1
 
 - name: Create alias routes to mqtt
   route53:
